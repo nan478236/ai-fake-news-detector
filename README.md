@@ -1,3 +1,4 @@
+ai-fake-news-detector-guue.vercel.app
 Fake news spreads very quickly through social media, messaging apps, and websites. Many people share information without verifying whether it is true or false. This can cause:
 
 Panic and confusion
