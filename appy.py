@@ -1,10 +1,15 @@
 from flask import Flask, render_template, request
+import os
 import pickle
 
 app = Flask(__name__)
 
-model = pickle.load(open("model.pkl", "rb"))
-vectorizer = pickle.load(open("vectorizer.pkl", "rb"))
+# ✅ SAFE FILE LOADING (IMPORTANT FOR RAILWAY)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+model = pickle.load(open(os.path.join(BASE_DIR, "model.pkl"), "rb"))
+vectorizer = pickle.load(open(os.path.join(BASE_DIR, "vectorizer.pkl"), "rb"))
+
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
@@ -14,31 +19,31 @@ def home():
     explanation = ""
 
     if request.method == 'POST':
+        news = request.form.get('news', '')
 
-        news = request.form['news']
+        if news:
+            transformed = vectorizer.transform([news])
+            prediction = model.predict(transformed)[0]
 
-        transformed = vectorizer.transform([news])
+            probabilities = model.predict_proba(transformed)[0]
+            confidence = round(max(probabilities) * 100, 2)
 
-        prediction = model.predict(transformed)[0]
+            if prediction == "fake":
+                result = "⚠️ Likely Fake News"
+                explanation = "This article contains patterns commonly found in misinformation."
+            else:
+                result = "✅ Likely Real News"
+                explanation = "This article contains patterns commonly found in reliable news."
 
-        probabilities = model.predict_proba(transformed)[0]
-        confidence = round(max(probabilities) * 100, 2)
-
-        if prediction == "fake":
-            result = "⚠️ Likely Fake News"
-            explanation = "This article contains patterns commonly found in misinformation."
-        else:
-            result = "✅ Likely Real News"
-            explanation = "This article contains patterns commonly found in reliable news."
-
-        return render_template(
+    return render_template(
         'index.html',
         result=result,
         confidence=f"{confidence}%",
         explanation=explanation
     )
 
+
+# ✅ RAILWAY ENTRY POINT (IMPORTANT)
 if __name__ == "__main__":
-    import os
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port)
