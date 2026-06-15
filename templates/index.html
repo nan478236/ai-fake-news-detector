@@ -1,0 +1,46 @@
+<!doctype html>
+<html>
+  <head>
+    <title>AI Fake News Detector</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1>📰 AI Fake News Detector</h1>
+
+      <p class="subtitle">
+        Detect misinformation instantly using Artificial Intelligence
+      </p>
+
+      <form method="POST">
+        <textarea
+          name="news"
+          placeholder="Paste news article here..."
+          required
+        ></textarea>
+
+        <button type="submit">Check News</button>
+      </form>
+
+      {% if result %}
+      <div class="result">
+        <h3>{{ result }}</h3>
+
+        <p>
+          <strong>Confidence Score:</strong>
+          {{ confidence }}
+        </p>
+
+        <p>
+          <strong>Reason:</strong>
+          {{ explanation }}
+        </p>
+      </div>
+      <footer>Built with ❤️</footer>
+      {% endif %}
+    </div>
+  </body>
+</html>
